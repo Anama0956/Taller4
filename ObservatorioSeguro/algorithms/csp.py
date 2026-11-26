@@ -137,32 +137,34 @@ def ac3(csp, domains):
 
 
 def select_unassigned_variable(csp, assignment, domains):
-    """Punto 3: retorna el identificador de la variable elegida por MRV y grado.
-
-    Tips:
-    - csp.consistent(x, valor, assignment) comprueba si un candidato es
-      compatible con la asignación parcial. Los dominios deben conservarse.
-    - csp.neighbors[x] contiene sus vecinos; csp.variables conserva el orden
-      original para los desempates.
-    """
+    """...(deja el docstring como está)..."""
     # TODO: Add your code here
-    raise NotImplementedError
+    pendientes = [x for x in csp.variables if x not in assignment]
+
+    def valores_restantes(x):
+        return sum(1 for v in domains[x] if csp.consistent(x, v, assignment))
+
+    def vecinos_pendientes(x):
+        return sum(1 for y in csp.neighbors[x] if y not in assignment)
+
+    return min(pendientes, key=lambda x: (valores_restantes(x),
+                                          -vecinos_pendientes(x),
+                                          csp.variables.index(x)))
     # FIN DEL BLOQUE DEL ESTUDIANTE
 
 
 def order_domain_values(csp, variable, assignment, domains):
-    """Punto 3: retorna los valores compatibles ordenados por LCV.
-
-    Retorne una lista nueva sin modificar domains y conserve el orden original
-    en los empates.
-
-    Tips:
-    - Use valores de domains compatibles con assignment, tanto para los
-      candidatos como para los vecinos pendientes; compruébelos con
-      csp.consistent(x, valor, assignment).
-    - csp.compatible(variable, valor, vecino, valor_vecino) comprueba cada par
-      sin modificar los dominios.
-    """
+    """...(deja el docstring como está)..."""
     # TODO: Add your code here
-    raise NotImplementedError
+    candidatos = [v for v in domains[variable]
+                  if csp.consistent(variable, v, assignment)]
+    vecinos = [y for y in csp.neighbors[variable] if y not in assignment]
+    compatibles = {y: [w for w in domains[y] if csp.consistent(y, w, assignment)]
+                   for y in vecinos}
+
+    def descartados(v):
+        return sum(1 for y in vecinos for w in compatibles[y]
+                   if not csp.compatible(variable, v, y, w))
+
+    return sorted(candidatos, key=descartados)
     # FIN DEL BLOQUE DEL ESTUDIANTE
